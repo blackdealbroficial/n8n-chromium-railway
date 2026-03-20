@@ -1,8 +1,7 @@
-FROM n8nio/n8n:1-alpine
+FROM n8nio/n8n:alpine
 
 USER root
 
-# Instala Chromium no Alpine
 RUN apk update && apk add --no-cache \
     chromium \
     chromium-chromedriver \
@@ -13,7 +12,6 @@ RUN apk update && apk add --no-cache \
     ca-certificates \
     ttf-freefont
 
-# Corrige permissões (evita EACCES crash)
 RUN mkdir -p /home/node/.n8n && \
     chown -R node:node /home/node/.n8n && \
     chmod -R 777 /home/node/.n8n
