@@ -2,10 +2,17 @@ FROM ghcr.io/puppeteer/puppeteer:22.12.1
 
 USER root
 
-# Instala n8n globalmente
+# Instala ferramentas de compilação para módulos nativos do n8n
+RUN apt-get update && apt-get install -y \
+    python3 \
+    make \
+    g++ \
+    && apt-get clean
+
+# Instala n8n
 RUN npm install -g n8n
 
-# Cria diretório .n8n e dá permissão total
+# Corrige permissões para evitar EACCES
 RUN mkdir -p /home/pptruser/.n8n && \
     chown -R pptruser:pptruser /home/pptruser/.n8n && \
     chmod -R 777 /home/pptruser/.n8n
