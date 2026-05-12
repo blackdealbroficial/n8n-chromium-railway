@@ -1,27 +1,31 @@
-FROM node:20-bookworm
+# Usamos a versão 22 (Bookworm) que é a exigida pelo n8n 2.20+
+FROM node:22-bookworm
 
-USER root
-
-# Instala Chromium do Debian + ferramentas de compilação (python/make/g++)
+# Instala as dependências de sistema necessárias para o Chromium e bibliotecas gráficas
 RUN apt-get update && apt-get install -y \
     chromium \
-    chromium-driver \
+    fonts-ipafont-gothic \
+    fonts-wqy-zenhei \
+    fonts-thai-tlwg \
+    fonts-kacst \
+    fonts-freefont-ttf \
+    libxss1 \
+    build-essential \
     python3 \
     make \
     g++ \
-    ca-certificates \
-    fonts-liberation \
-    && rm -rf /var/lib/apt/lists/*
+    --no-install-recommends && \
+    rm -rf /var/lib/apt/lists/*
 
-# Instala n8n globalmente
-RUN npm install -g n8n
+# Configura as variáveis de ambiente para o n8n reconhecer o Chromium
+ENV CHROME_BIN=/usr/bin/chromium
+ENV N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
 
-# Cria diretório de configuração com permissões corretas (evita EACCES)
-RUN mkdir -p /root/.n8n && chmod -R 777 /root/.n8n
+# Instala o n8n globalmente (o --unsafe-perm ajuda com módulos nativos como o isolated-vm)
+RUN npm install -g n8n@latest --unsafe-perm
 
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-ENV N8N_HOST=0.0.0.0
-ENV N8N_PORT=5678
+# Define a porta padrão
+EXPOSE 5678
 
+# Comando para iniciar
 CMD ["n8n", "start"]
